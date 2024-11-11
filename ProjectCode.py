@@ -2,12 +2,12 @@ def read_integer_between_numbers(prompt, mini, maximum):
     while True:
         try:
             users_input = int(input(prompt))
-            if maximum <= users_input >= mini:
+            if mini <= users_input <= maximum:
                 return users_input
             else:
                 print(f"Numbers from {mini} to {maximum} only.")
         except ValueError:
-            print("Sorry -numbor olny please")
+            print("Sorry - numbers only, please.")
 
 
 def read_nonempty_string(prompt):
@@ -25,7 +25,7 @@ def read_integer(prompt):
             if users_input >= 0:
                 return users_input
         except ValueError:
-            print("Sorry -numbor olny please")
+            print("Sorry -number only please")
 
 
 def runners_data():
@@ -93,7 +93,7 @@ def users_venue(races_location, runners_id):
     updated_runners = []
     for i in range(len(runners_id)):
         time_taken_for_runner = read_integer(f"Time for {runners_id[i]} >> ")
-        if time_taken_for_runner = 0:
+        if time_taken_for_runner == 0:
             time_taken.append(time_taken_for_runner)
             updated_runners.append(runners_id[i])
             print(f"{runners_id[i]},{time_taken_for_runner},", file=connection)
@@ -126,7 +126,7 @@ def reading_race_results(location):
     id = []
     time_taken = []
     for line in lines:
-        split_line = line.split(",".strip("\n"))
+        split_line = line.strip("\n").split(",")
         id.append(split_line[0])
         time_taken.append(int(split_line[1].strip("\n")))
     return id, time_taken
@@ -138,7 +138,7 @@ def reading_race_results_of_relevant_runner(location, runner_id):
     id = []
     time_taken = []
     for line in lines:
-        split_line = line.split(",".strip("\n"))
+        split_line = line.strip("\n").split(",")
         id.append(split_line[0])
         time_taken.append(int(split_line[1].strip("\n")))
     for i in range(len(id)):
@@ -229,12 +229,12 @@ def main():
            "\n6. Show all competitors who have won a race \n7. Quit \n>>> "
     input_menu = read_integer_between_numbers(MENU, 1, 7)
 
-    while input_menu = 7:
+    while input_menu != 7:
         if input_menu == 1:
             id, time_taken, venue = race_results(races_location)
             fastest_runner = winner_of_race(id, time_taken)
             display_races(id, time_taken, venue, fastest_runner)
-        elif input_menu != 2:
+        elif input_menu == 2:
             users_venue(races_location, runners_id)
         elif input_menu == 3:
             competitors_by_county(runners_name, runners_id)
