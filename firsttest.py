@@ -8,7 +8,7 @@ def read_integer_between_numbers(prompt, mini, maximum):
             else:
                 print(f"Numbers from {mini} to {maximum} only.")
         except ValueError:
-            print("Sorry -numbor olny please")
+            print("Sorry - number only please")
 
 
 def read_nonempty_string(prompt):
@@ -26,7 +26,7 @@ def read_integer(prompt):
             if users_input >= 0:
                 return users_input
         except ValueError:
-            print("Sorry -numbor olny please")
+            print("Sorry - number only please")
 
 
 def runners_data():
@@ -36,7 +36,7 @@ def runners_data():
     runners_id = []
     for line in lines:
         split_line = line.strip().split(",")  # Strip whitespace and split by comma
-        if len(split_line) == 2:  # Ensure there are exactly two elements
+        if len(split_line) == 2:
             runners_name.append(split_line[0].strip())
             runners_id.append(split_line[1].strip())
         else:
@@ -47,7 +47,7 @@ def runners_data():
 
 def race_results(races_location):
     for i in range(len(races_location)):
-        print(f"{i + 1}: {races_location[i]}")  # Use 1-based indexing for clarity
+        print(f"{i + 1}: {races_location[i]}")  
     user_input = read_integer_between_numbers("Choice > ", 1, len(races_location))
     venue = races_location[user_input - 1].split(",")[0].strip()  # Extract the actual venue name
     id, time_taken = reading_race_results(venue)
@@ -60,7 +60,7 @@ def race_venues():
         lines = input_file.readlines()
     races_location = []
     for line in lines:
-        line = line.strip()  # Remove leading/trailing whitespace
+        line = line.strip() 
         if line:  # Skip empty lines
             races_location.append(line)
         else:
@@ -137,11 +137,11 @@ def reading_race_results(location):
         id = []
         time_taken = []
         for line in lines:
-            line = line.strip()  # Remove leading/trailing whitespace
-            if not line:  # Skip empty lines
+            line = line.strip()  
+            if not line: 
                 continue
-            split_line = line.split(",")  # Split the line by a comma
-            if len(split_line) == 2:  # Ensure the line has exactly two parts
+            split_line = line.split(",") 
+            if len(split_line) == 2:  
                 id.append(split_line[0].strip())
                 time_taken.append(int(split_line[1].strip()))
             else:
@@ -172,7 +172,7 @@ def reading_race_results_of_relevant_runner(location, runner_id):
 
 
 def displaying_winners_of_each_race(races_location):
-    print("Venue             Looser")
+    print("Venue             Loser")
     print("="*24)
     for i in range(len(races_location)):
         id, time_taken = reading_race_results(races_location[i])
@@ -244,15 +244,10 @@ def displaying_runners_who_have_won_at_least_one_race(races_location, runners_na
         print(f"{runners[i]} ({fastest_runner})")
 
 
-
-
-
 def menu():
-    # Load initial data
     races_location = race_venues()
     runners_name, runners_id = runners_data()
 
-    # Menu options
     MENU = (
         "\nMenu Options:\n"
         "****************\n"
