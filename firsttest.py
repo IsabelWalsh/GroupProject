@@ -118,16 +118,27 @@ def updating_races_file(races_location):
 
 
 def competitors_by_county(name, id):
-    print("Cork runners")
-    print("=" * 20)
-    for i in range(len(name)):
-        if id[i].startswith("CK"):
-            print(f"{name[i]} ({id[i]})")
-    print("Kerry runners")
-    print("=" * 20)
-    for i in range(len(name)):
-        if id[i].startswith("KY"):
-            print(f"{name[i]} ({id[i]})")
+    counties = {
+        "Cork": "CK",
+        "Kerry": "KY",
+        "Clare": "CL",
+        "Limerick": "LK",
+        "Tipperary": "TP",
+        "Waterford": "WD"
+    }
+
+    for county, code in counties.items():
+        print()
+        print(f"{county} runners")
+        print("-" * 20)
+        found = False
+        for i in range(len(name)):
+            if id[i].startswith(code):
+                print(f"{name[i]} ({id[i]})")
+                found = True
+        if not found:
+            print("No runners found.")
+        print() 
 
 
 def reading_race_results(location):
