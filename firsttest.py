@@ -47,11 +47,14 @@ def runners_data():
 
 def race_results(races_location):
     for i in range(len(races_location)):
-        print(f"{i + 1}: {races_location[i]}")  
+        print(f"{i + 1}: {races_location[i]}")
     user_input = read_integer_between_numbers("Choice > ", 1, len(races_location))
-    venue = races_location[user_input - 1].split(",")[0].strip()  # Extract the actual venue name
+    
+    # Use the selected venue name directly, as it's already cleaned in race_venues
+    venue = races_location[user_input - 1]
     id, time_taken = reading_race_results(venue)
     return id, time_taken, venue
+
 
 
 
@@ -60,16 +63,21 @@ def race_venues():
         lines = input_file.readlines()
     races_location = []
     for line in lines:
-        line = line.strip() 
-        if line:  # Skip empty lines
-            races_location.append(line)
+        line = line.strip()  # Remove whitespace
+        if line:
+            # Extract only the venue name before the first comma
+            venue_name = line.split(",")[0].strip()
+            races_location.append(venue_name)
         else:
             print("Warning: Skipping empty or invalid line in races.txt")
     return races_location
 
 
-
 def winner_of_race(id, time_taken):
+    if not time_taken: 
+        print("No valid race times found for this race.")
+        return None  
+
     quickest_time = min(time_taken)
     winner = ""
     for i in range(len(id)):
@@ -143,16 +151,16 @@ def competitors_by_county(name, id):
 
 def reading_race_results(location):
     try:
-        with open(f"{location}.txt") as input_type:
+        with open(f"{location}.txt") as input_type:  # Use the cleaned location name
             lines = input_type.readlines()
         id = []
         time_taken = []
         for line in lines:
-            line = line.strip()  
-            if not line: 
+            line = line.strip()
+            if not line:
                 continue
-            split_line = line.split(",") 
-            if len(split_line) == 2:  
+            split_line = line.split(",")
+            if len(split_line) == 2:
                 id.append(split_line[0].strip())
                 time_taken.append(int(split_line[1].strip()))
             else:
@@ -164,6 +172,7 @@ def reading_race_results(location):
     except ValueError as e:
         print(f"Error parsing time values: {e}")
         return [], []
+
 
 
 def reading_race_results_of_relevant_runner(location, runner_id):
@@ -244,13 +253,14 @@ def displaying_runners_who_have_won_at_least_one_race(races_location, runners_na
     print(f"-" * 55)
     winners = []
     runners = []
-    for i, location in enumerate(races_location):
+    for location in races_location:
         id, time_taken = reading_race_results(location)
         fastest_runner = winner_of_race(id, time_taken)
-        name_of_runner = finding_name_of_winner(fastest_runner, runners_id, runners_name)
-        if fastest_runner not in winners:
-            winners.append(fastest_runner)
-            runners.append(name_of_runner)
+        if fastest_runner:  # Ensure fastest_runner is not None
+            name_of_runner = finding_name_of_winner(fastest_runner, runners_id, runners_name)
+            if fastest_runner not in winners:
+                winners.append(fastest_runner)
+                runners.append(name_of_runner)
     for i, fastest_runner in enumerate(winners):
         print(f"{runners[i]} ({fastest_runner})")
 
