@@ -35,7 +35,7 @@ def runners_data():
     runners_name = []
     runners_id = []
     for line in lines:
-        split_line = line.strip().split(",")  # Strip whitespace and split by comma
+        split_line = line.strip().split(",")
         if len(split_line) == 2:
             runners_name.append(split_line[0].strip())
             runners_id.append(split_line[1].strip())
@@ -56,8 +56,6 @@ def race_results(races_location):
     return id, time_taken, venue
 
 
-
-
 def race_venues():
     with open("races.txt") as input_file:
         lines = input_file.readlines()
@@ -65,7 +63,7 @@ def race_venues():
     for line in lines:
         line = line.strip()  # Remove whitespace
         if line:
-            # Extract only the venue name before the first comma
+            # Extracts only the venue name before the first comma
             venue_name = line.split(",")[0].strip()
             races_location.append(venue_name)
         else:
@@ -151,7 +149,7 @@ def competitors_by_county(name, id):
 
 def reading_race_results(location):
     try:
-        with open(f"{location}.txt") as input_type:  # Use the cleaned location name
+        with open(f"{location}.txt") as input_type:  
             lines = input_type.readlines()
         id = []
         time_taken = []
@@ -174,20 +172,24 @@ def reading_race_results(location):
         return [], []
 
 
-
 def reading_race_results_of_relevant_runner(location, runner_id):
-    with open(f"{location}.txt") as input_type:
-        lines = input_type.readlines()
-    id = []
-    time_taken = []
-    for line in lines:
-        split_line = line.split(",".strip("\n"))
-        id.append(split_line[0])
-        time_taken.append(int(split_line[1].strip("\n")))
-    for i in range(len(id)):
-        if runner_id == id[i]:
-            time_relevant_runner = time_taken[i]
-            return time_relevant_runner
+    try:
+        with open(f"{location}.txt") as input_file:
+            lines = input_file.readlines()
+        id = []
+        time_taken = []
+        for line in lines:
+            split_line = line.strip().split(",")
+            if len(split_line) == 2:
+                id.append(split_line[0].strip())
+                time_taken.append(int(split_line[1].strip()))
+        for i in range(len(id)):
+            if runner_id == id[i]:
+                return time_taken[i]
+    except FileNotFoundError:
+        print(f"Error: File '{location}.txt' not found.")
+    except ValueError as e:
+        print(f"Error parsing time values: {e}")
     return None
 
 
@@ -215,29 +217,40 @@ def convert_time_to_minutes_and_seconds(time_taken):
     seconds = time_taken % MINUTE
     return minutes, seconds
 
+def sorting_where_runner_came_in_race(venue, time_taken):
+    with open(venue + ".txt", "r") as file:
+        runner_positions = []
+        for line in file:
+            split_line = line.strip().split(" ")
+            if len(split_line) != 2:  
+                continue  
+            try:
+                t = int(split_line[1])  
+                runner_positions.append(t)
+            except ValueError:
+                continue 
+        runner_positions.sort()
+        if time_taken in runner_positions:
+            came_in_race = runner_positions.index(time_taken) + 1
+            number_in_race = len(runner_positions)
+            return came_in_race, number_in_race
+        else:
+            return None, len(runner_positions)
 
-def sorting_where_runner_came_in_race(location, time):
-    with open(f"{location}.txt") as input_type:
-        lines = input_type.readlines()
-    time_taken = []
-    for line in lines:
-        split_line = line.split(",".strip("\n"))
-        t = int(split_line[1].strip("\n"))
-        time_taken.append(t)
 
-    time_taken.sort()
-    return time_taken.index(time) + 1, len(lines)
-
-
-def displaying_race_times_one_competitor(races_location, runner, id):
-    print(f"{runner} ({id})")
-    print(f"-"*35)
+def displaying_race_times_one_competitor(races_location, runner_name, runner_id):
+    print(f"{runner_name} ({runner_id})")
+    print("-----------------------------------")
     for i in range(len(races_location)):
-        time_taken = reading_race_results_of_relevant_runner(races_location[i], id)
-        if time_taken is not None:
-            minutes, seconds = convert_time_to_minutes_and_seconds(time_taken)
+        time_taken = reading_race_results_of_relevant_runner(races_location[i], runner_id)
+        if time_taken == 0:
+            print(f"{races_location[i]}: Did not compete")
+        else:
             came_in_race, number_in_race = sorting_where_runner_came_in_race(races_location[i], time_taken)
-            print(f"{races_location[i]} {minutes} mins {seconds} secs ({came_in_race} of {number_in_race})")
+            if came_in_race is None:
+                print(f"{races_location[i]}: Invalid data in race file")
+            else:
+                print(f"{races_location[i]}: {came_in_race}/{number_in_race}")
 
 
 def finding_name_of_winner(fastest_runner, id, runners_name):
@@ -256,7 +269,7 @@ def displaying_runners_who_have_won_at_least_one_race(races_location, runners_na
     for location in races_location:
         id, time_taken = reading_race_results(location)
         fastest_runner = winner_of_race(id, time_taken)
-        if fastest_runner:  # Ensure fastest_runner is not None
+        if fastest_runner: 
             name_of_runner = finding_name_of_winner(fastest_runner, runners_id, runners_name)
             if fastest_runner not in winners:
                 winners.append(fastest_runner)
