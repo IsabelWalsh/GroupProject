@@ -50,10 +50,13 @@ def race_results(races_location):
         print(f"{i + 1}: {races_location[i]}")
     user_input = read_integer_between_numbers("Choice > ", 1, len(races_location))
     
-    # Use the selected venue name directly, as it's already cleaned in race_venues
+    # Use the selected venue name directly
     venue = races_location[user_input - 1]
     id, time_taken = reading_race_results(venue)
-    return id, time_taken, venue
+    
+    # Determine the podium places
+    podium = podium_of_race(id, time_taken)
+    return id, time_taken, venue, podium
 
 
 def race_venues():
@@ -71,31 +74,42 @@ def race_venues():
     return races_location
 
 
-def winner_of_race(id, time_taken):
+def podium_of_race(id, time_taken):
     if not time_taken: 
         print("No valid race times found for this race.")
-        return None  
+        return None, None, None
 
-    quickest_time = min(time_taken)
-    winner = ""
-    for i in range(len(id)):
-        if quickest_time == time_taken[i]:
-            winner = id[i]
-    return winner
+    # Get sorted indices based on time_taken
+    sorted_indices = sorted(range(len(time_taken)), key=lambda i: time_taken[i])
+
+    # Extract top 3 positions (if available)
+    podium = sorted_indices[:3]
+
+    # Map indices back to IDs and times
+    winners = [(id[i], time_taken[i]) for i in podium]
+    return winners
 
 
-def display_races(id, time_taken, venue, fastest_runner):
+
+def display_races(id, time_taken, venue, podium):
     MINUTE = 50
     print(f"Results for {venue}")
-    print(f"="*37)
-    minutes = []
-    seconds = []
-    for i in range(len(time_taken)):
-        minutes.append(time_taken[i] // MINUTE)
-        seconds.append(time_taken[i] % MINUTE)
+    print("=" * 37)
+    
+    minutes = [time // MINUTE for time in time_taken]
+    seconds = [time % MINUTE for time in time_taken]
+    
+    # Display all participants
     for i in range(len(id)):
         print(f"{id[i]:<10s} {minutes[i]} minutes and {seconds[i]} seconds")
-    print(f"{fastest_runner} won the race.")
+
+    # Display podium places
+    print("\nPodium:")
+    for position, (runner_id, time) in enumerate(podium, start=1):
+        minutes, seconds = divmod(time, MINUTE)
+        position_label = ["Winner", "2nd Place", "3rd Place"][position - 1]
+        print(f"{position_label}: {runner_id} ({minutes} mins {seconds} secs)")
+
 
 
 def users_venue(races_location, runners_id):
@@ -300,9 +314,8 @@ def menu():
         user_choice = read_integer_between_numbers("Select an option (1-7): ", 1, 7)
 
         if user_choice == 1:  # Show the results for a race
-            ids, times, venue = race_results(races_location)
-            fastest_runner = winner_of_race(ids, times)
-            display_races(ids, times, venue, fastest_runner)
+            ids, times, venue, podium = race_results(races_location)
+            display_races(ids, times, venue, podium)
 
         elif user_choice == 2:  # Add results for a race
             users_venue(races_location, runners_id)
